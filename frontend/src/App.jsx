@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import SignInForm from './components/SignInForm';
 import SignUpForm from './components/SignUpForm';
+import LandingPage from './components/LandingPage';
 
 function App() {
   const [count, setCount] = useState(0);
