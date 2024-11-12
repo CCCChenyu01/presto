@@ -82,14 +82,30 @@ const Dashboard = () => {
 
     const [title,setTitle]= useState("")
 
-    const postnew =(title)=>{
+    const postnew =()=>{
         getStore()
         // get data
         .then((data)=>{
             console.log(data)
             // change the data
             const storeData = data.store && typeof data.store === "object" ? data.store:{};
-            const newId = title
+            const newId = Object.keys(storeData).length + 1;
+            storeData[newId] = {"title":title,"1":{}};
+
+            //put new data
+            const userToken = localStorage.getItem('token')
+            const url = 'http://localhost:5005/store'
+            return fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-type': 'application/json',
+                    Authorization: `Bearer ${userToken}`
+                },
+                body:JSON.stringify({store:storeData}),
+            })
+            .then((res)=>{
+                console.log("hhhhhh")
+            })
         })
     }
 

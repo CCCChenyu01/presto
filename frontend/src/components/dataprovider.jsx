@@ -1,11 +1,11 @@
 export const getStore=()=>{
-    const userTOken = localStorage.getItem('token')
+    const userToken = localStorage.getItem('token')
     const url = 'http://localhost:5005/store'
     return fetch(url, {
         method: 'GET',
         headers: {
             'Content-type': 'application/json',
-            Authorization: `Bearer ${userTOken}`
+            Authorization: `Bearer ${userToken}`
         },
     })
     .then((res)=>{
@@ -14,3 +14,5 @@ export const getStore=()=>{
         }
     })
 }
+
+
