@@ -1,22 +1,21 @@
 import { useState } from 'react';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
+
 import SignInForm from './components/SignInForm';
 import SignUpForm from './components/SignUpForm';
 import LandingPage from './components/LandingPage';
+import Dashboard from './components/dashboard';
 
 function App() {
-  const [count, setCount] = useState(0);
-  
   return (
-    <>
     <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<LandingPage/>}></Route>
-      <Route path="/login" element={<SignInForm/>}></Route>
-      <Route path="/register" element={<SignUpForm/>}></Route>
-    </Routes>
+      <Routes>
+        <Route path="/" element={<LandingPage/>}></Route>
+        <Route path="/login" element={<SignInForm/>}></Route>
+        <Route path="/register" element={<SignUpForm/>}></Route>
+        <Route path="/dashboard" element={<Dashboard />}></Route>
+      </Routes>
     </BrowserRouter>
-    </>
   )
 }
 

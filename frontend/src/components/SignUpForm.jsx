@@ -55,7 +55,7 @@ const SignUpForm = () => {
             navigate('/dashboard'); // Redirect to dashboard
         } else {
             // Registration failed
-            setError(data.message || "Register failed. Please check your credentials.");
+            setError(data.message || "Register failed. This Email is used.");
         }
     };
 
