@@ -61,7 +61,7 @@ const SignInForm = () => {
                     <TextField id="email" label="email" variant="outlined" onChange={(e) => setEmail(e.target.value)} />
                     <TextField id="password" label="password" variant="outlined" type="password" onChange={(e) => setPassword(e.target.value)} />
                     <Button type="submit" variant="contained" >Submit</Button>
-                    <Button variant="outlined">Register</Button>
+                    <Button variant="outlined" onClick={() => navigate('/register')}>Register</Button>
                 </Stack>
             </form>
         </div>
