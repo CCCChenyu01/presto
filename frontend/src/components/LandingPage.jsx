@@ -21,7 +21,7 @@ const LandingPage = () => {
     return (
         <div style={style}>
             {/* use Typography show welcome */}
-            <Typography variant="h4" component="h1">
+            <Typography variant="h3" gutterBottom>
                 Welcome to Presto!
             </Typography>
             <Button
