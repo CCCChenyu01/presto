@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -9,6 +9,8 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
+
+import {getStore} from './dataprovider';
 
 
 
@@ -78,6 +80,19 @@ const Dashboard = () => {
         navigate('/');
     };
 
+    const [title,setTitle]= useState("")
+
+    const postnew =(title)=>{
+        getStore()
+        // get data
+        .then((data)=>{
+            console.log(data)
+            // change the data
+            const storeData = data.store && typeof data.store === "object" ? data.store:{};
+            const newId = title
+        })
+    }
+
     return (
         <div style={containerStyle}>
             <Button variant="contained" style={logoutButtonStyle} onClick={handleLogout}>
@@ -92,7 +107,7 @@ const Dashboard = () => {
             >
                 <Box sx={boxStyle}>
                 <TextField id="presentationName" label="Presentation Name" variant="outlined" onChange={(e) => setTitle(e.target.value)} value={title}/>
-                <Button variant="contained" onClick={handleClose} sx={{ mt: 2 }}>Create</Button>
+                <Button variant="contained" onClick={() => { postnew(); handleClose(); }} sx={{ mt: 2 }}>Create</Button>
                 </Box>
             </Modal>
         </div>
