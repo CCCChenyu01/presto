@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
-
+import MediaCard from './Card';
 import {getStore} from './dataprovider';
 
 
@@ -72,6 +72,8 @@ const Dashboard = () => {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
+    const [title,setTitle]= useState("")
+    const [presentation,setPresentation]= useState([])
 
     const handleLogout = () => {
         // Clear token from localStorage
@@ -79,8 +81,6 @@ const Dashboard = () => {
         // Navigate back to login page
         navigate('/');
     };
-
-    const [title,setTitle]= useState("")
 
     const postnew =()=>{
         getStore()
@@ -105,9 +105,22 @@ const Dashboard = () => {
             })
             .then((res)=>{
                 console.log("hhhhhh")
+                getPresentation()
             })
         })
     }
+
+    const getPresentation=()=>{
+        getStore()
+        .then(data=>{
+            console.log(data)
+            setPresentation(data.store)
+        })
+    }
+
+    useEffect(()=>{
+        getPresentation()
+    },[])
 
     return (
         <div style={containerStyle}>
@@ -115,6 +128,7 @@ const Dashboard = () => {
                 Logout
             </Button>
             <Button variant="outlined" style={newPresentationButtonStyle} onClick={handleOpen}>New presentation</Button>
+            <MediaCard presentation={presentation}/>
             <Modal
                 open={open}
                 onClose={handleClose}
