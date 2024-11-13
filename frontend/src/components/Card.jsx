@@ -78,7 +78,7 @@ const MediaCard = (props) => {
                         )}
 
                         <Typography variant="body2" color="text.secondary">
-                            Slides: {presentation.slides ? presentation.slides.length : 0}
+                            Slides: {Object.keys(presentation).length - 1}
                         </Typography>
                     </CardContent>
 

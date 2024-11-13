@@ -13,6 +13,9 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { grey } from '@mui/material/colors';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+
 const boxStyle = {
     width: '400px', 
     position: 'absolute',
@@ -47,6 +50,8 @@ const SingleSlide = () => {
     const [editedTitle, setEditedTitle] = useState(''); 
     const [currentIndex, setCurrentIndex] = useState(1);
     const [slideCount,setSlideCount] = useState(1);
+    const [errorOpen, setErrorOpen] = useState(false); 
+    const handleErrorClose = () => setErrorOpen(false); 
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -98,6 +103,42 @@ const SingleSlide = () => {
         })
     };
 
+    const handleSlideDelete=()=>{
+        getStore()
+        .then(data=>{
+            const presentation = data.store[id];
+            const slideKeys = Object.keys(presentation).filter(key => key !== 'title');
+        
+            // if only one slide，error
+            if (slideKeys.length === 1) {
+                setErrorOpen(true);
+                return;
+            }
+
+            delete presentation[currentIndex]
+            console.log(data)
+
+            const newSlideIndex = currentIndex > 1 ? currentIndex - 1 : 1;
+            setCurrentIndex(newSlideIndex);
+
+            const userToken = localStorage.getItem('token');
+            const url = 'http://localhost:5005/store';
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-type': 'application/json',
+                    Authorization: `Bearer ${userToken}`
+                },
+                body: JSON.stringify({ store: data.store}),
+            })
+            .then((res)=>{
+                return res.json()})
+            .then(() => {
+                getPresentation(); 
+            });
+        });
+    };
+
     const handleBack = () => {
         navigate('/dashboard'); // back to dashboard
     };
@@ -112,7 +153,6 @@ const SingleSlide = () => {
 
     const handleTitleSave = () => {
         setIsEditing(false);
-        //setPresentation(prev => ({ ...prev, title: editedTitle }));
         // Optionally: Save the updated title back to the server
         getStore()
         .then(data=>{
@@ -322,10 +362,24 @@ const SingleSlide = () => {
                         {currentIndex}
                     </Typography>
                 </div>
-                <AddCircleIcon 
-                    onClick={handleAddPage}
-                    sx={{ color: grey[400], marginTop: 2, fontSize: 40, cursor: 'pointer' }}
-                />
+                <Box 
+                    sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 2, // 设置 AddCircleIcon 和 DeleteIcon 之间的间距
+                        marginTop: 2, // 与上方内容的距离
+                        justifyContent: 'center' // 居中对齐
+                    }}
+                >
+                    <AddCircleIcon 
+                        onClick={handleAddPage}
+                        sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
+                    />
+                    <DeleteIcon 
+                        onClick={handleSlideDelete}
+                        sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
+                    />
+                </Box>
             </Box>
         </Box>
     );
