@@ -147,9 +147,19 @@ const SingleSlide = () => {
     
     //Creating slides
     const handleAddPage = () => {
-        getStore().then(data => {
-            const maxKey = Math.max(...Object.keys(data.store[id]).map(Number));
-            data.store[id][maxKey + 1] = {}; // Add new empty page
+        getStore()
+        .then(data => {
+            const presentation = data.store[id];
+            // findthe maxnum of presentation，+ 1 to be newId
+            const numericKeys = Object.keys(presentation)
+            .map(Number) 
+            .filter(key => !isNaN(key)); 
+
+            const maxKey = numericKeys.length > 0 ? Math.max(...numericKeys) : 0;
+            const newId = maxKey + 1;
+            presentation[newId] = {};
+
+            console.log(data)
             const userToken = localStorage.getItem('token');
             const url = 'http://localhost:5005/store';
             fetch(url, {
@@ -160,7 +170,10 @@ const SingleSlide = () => {
                 },
                 body: JSON.stringify({ store: data.store }),
             })
-            .then(() => getPresentation()); // Refresh presentation data
+            .then((res) => {
+                return res.json()
+            }); // Refresh presentation data
+            getPresentation()
         });
     };
 

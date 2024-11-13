@@ -66,7 +66,7 @@ const Dashboard = () => {
         getStore()
         .then((data) => {
             const storeData = data.store && typeof data.store === "object" ? data.store : {};
-            console.log(storeData)
+            //console.log(storeData)
             const keys = Object.keys(storeData);
             const newId = keys.length > 0 ? Math.max(...keys.map(Number)) + 1 : 1;
             //const newId = Object.keys(storeData).length + 1;
