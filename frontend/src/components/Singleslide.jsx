@@ -98,22 +98,51 @@ const SingleSlide = () => {
         };
     },[id, currentIndex, slideCount])
 
+    //菜单在这里
+    const handleText = () => {
+        console.log("Text option selected");
+    };
+
+    const handleImage = () => {
+        console.log("Image option selected");
+    };
+
+    const handleVideo = () => {
+        console.log("Video option selected");
+    };
+
+    const handleCode = () => {
+        console.log("Code option selected");
+    };
+
+
     const DrawerList = (
-        <Box sx={{ width: 250 }} role="presentation" onClick={handleDrawerToggle}>
+        <Box sx={{ width: '100%' }} role="presentation" onClick={handleDrawerToggle}>
             <List>
-                {['TEXT', 'IMAGE', 'VIDEO', 'CODE'].map((text, index) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index === 0 && <TextFieldsIcon />}
-                                {index === 1 && <ImageIcon />}
-                                {index === 2 && <VideoLibraryIcon />}
-                                {index === 3 && <CodeIcon />}
-                            </ListItemIcon>
-                            <ListItemText primary={text} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
+                <ListItem disablePadding>
+                    <ListItemButton onClick={handleText}>
+                        <ListItemIcon><TextFieldsIcon /></ListItemIcon>
+                        <ListItemText primary="TEXT" />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                    <ListItemButton onClick={handleImage}>
+                        <ListItemIcon><ImageIcon /></ListItemIcon>
+                        <ListItemText primary="IMAGE" />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                    <ListItemButton onClick={handleVideo}>
+                        <ListItemIcon><VideoLibraryIcon /></ListItemIcon>
+                        <ListItemText primary="VIDEO" />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                    <ListItemButton onClick={handleCode}>
+                        <ListItemIcon><CodeIcon /></ListItemIcon>
+                        <ListItemText primary="CODE" />
+                    </ListItemButton>
+                </ListItem>
             </List>
             <Divider />
         </Box>
@@ -360,7 +389,7 @@ const SingleSlide = () => {
                 </Toolbar>
             </AppBar>
             
-            <Drawer anchor="left" open={drawerOpen} onClose={handleDrawerToggle}>
+            <Drawer anchor="left" open={drawerOpen} onClose={handleDrawerToggle} sx={{ width: '30%' }}>
                 {DrawerList}
             </Drawer>
 

@@ -17,7 +17,7 @@ const MediaCard = (props) => {
 
     const navigate = useNavigate();
     const gotosingle = (id) => {
-        navigate(`/presentation/${id}`);
+        navigate(`/presentation/${id}/${1}`);
     };
 
     return (
