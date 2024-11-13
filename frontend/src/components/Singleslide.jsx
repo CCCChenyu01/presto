@@ -114,10 +114,14 @@ const SingleSlide = () => {
                 setErrorOpen(true);
                 return;
             }
+            // find the delate key
+            const keyToDelete = slideKeys[currentIndex - 1]; // slideKeys begin with 0
+            console.log(`Deleting slide at index ${currentIndex} with key ${keyToDelete}`);
+            
+            delete presentation[keyToDelete];
+            console.log(data);
 
-            delete presentation[currentIndex]
-            console.log(data)
-
+            // update currentIndex 
             const newSlideIndex = currentIndex > 1 ? currentIndex - 1 : 1;
             setCurrentIndex(newSlideIndex);
 
@@ -131,11 +135,10 @@ const SingleSlide = () => {
                 },
                 body: JSON.stringify({ store: data.store}),
             })
-            .then((res)=>{
-                return res.json()})
-            .then(() => {
-                getPresentation(); 
+            .then((res) => {
+                return res.json() 
             });
+            getPresentation();
         });
     };
 
@@ -326,6 +329,25 @@ const SingleSlide = () => {
                     </Box>
                 </Box>
             </Modal>
+            
+            {/* 删除错误提示弹窗 */}
+            <Modal
+                open={errorOpen}
+                onClose={handleErrorClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={boxStyle}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Cannot delete the only slide
+                    </Typography>
+                    <Typography variant="body2">
+                        Please delete the entire presentation instead.
+                    </Typography>
+                    <Button onClick={handleErrorClose}>OK</Button>
+                </Box>
+            </Modal>
+
             {/* Centered black bordered box */}
             <Box sx={slideBoxStyles}>
                 <div 
@@ -366,9 +388,9 @@ const SingleSlide = () => {
                     sx={{ 
                         display: 'flex', 
                         alignItems: 'center', 
-                        gap: 2, // 设置 AddCircleIcon 和 DeleteIcon 之间的间距
-                        marginTop: 2, // 与上方内容的距离
-                        justifyContent: 'center' // 居中对齐
+                        gap: 2, 
+                        marginTop: 2, 
+                        justifyContent: 'center' 
                     }}
                 >
                     <AddCircleIcon 
