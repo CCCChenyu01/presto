@@ -63,8 +63,17 @@ const SingleSlide = () => {
     };
 
     useEffect(()=>{
-        getPresentation()
-    },[id])
+        getPresentation();
+
+        const handleKeyDown = (event) => {
+            if (event.key === 'ArrowLeft') goToPrevious();
+            if (event.key === 'ArrowRight') goToNext();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    },[id, currentIndex, slideCount])
 
     const handleDelete = () => {
         getStore()
@@ -127,6 +136,16 @@ const SingleSlide = () => {
         })
     };
 
+    //moving between
+    const goToPrevious=()=>{
+        setCurrentIndex(prev=>(prev > 1 ? prev-1:prev))
+    }
+
+    const goToNext=()=>{
+        setCurrentIndex(prev=>(prev < slideCount ? prev+1:prev))
+    }
+    
+    //Creating slides
     const handleAddPage = () => {
         getStore().then(data => {
             const maxKey = Math.max(...Object.keys(data.store[id]).map(Number));
@@ -155,6 +174,27 @@ const SingleSlide = () => {
             color: 'white', 
             borderColor: 'red', 
         },
+    };
+
+    const slideBoxStyles = {
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        height: 'calc(100vh - 64px)', // Adjust height to fill remaining space after AppBar
+        position: 'relative'
+    };
+
+    const slideNumberStyles = {
+        position: 'absolute', 
+        bottom: 0, 
+        left: 0, 
+        width: '50px', 
+        height: '50px', 
+        fontSize: '1em', 
+        display: 'flex',
+        alignItems: 'center', 
+        justifyContent: 'center'
     };
 
     return (
@@ -227,26 +267,14 @@ const SingleSlide = () => {
                         >
                             Yes
                         </Button>
-                        <Button 
-                            variant="contained" 
-                            onClick={handleClose} 
-                        >
+                        <Button variant="contained" onClick={handleClose} >
                             No
                         </Button>
                     </Box>
                 </Box>
             </Modal>
             {/* Centered black bordered box */}
-            <Box 
-                sx={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    height: 'calc(100vh - 64px)', // Adjust height to fill remaining space after AppBar
-                    position: 'relative'
-                }}
-            >
+            <Box sx={slideBoxStyles}>
                 <div 
                     style={{ 
                         width: '60%', 
@@ -257,7 +285,27 @@ const SingleSlide = () => {
                         marginLeft: 'auto' 
                     }}
                 >
-                    <Typography variant="caption" gutterBottom sx={{ position: 'absolute', bottom: 0, left: 0, width: '50px', height: '50px', fontSize: '1em', display: 'flex',alignItems: 'center', justifyContent: 'center'}}>
+                    {/* Up */}
+                    {currentIndex > 1 && (
+                        <KeyboardArrowUpIcon 
+                            onClick={goToPrevious}
+                            sx={{
+                                position: 'absolute', top: '50%', left: 0, transform: 'translateY(-50%)',
+                                cursor: 'pointer'
+                            }}
+                        />
+                    )}
+                    {/* Down */}
+                    {currentIndex < slideCount && (
+                        <KeyboardArrowDownIcon 
+                            onClick={goToNext}
+                            sx={{
+                                position: 'absolute', top: '50%', right: 0, transform: 'translateY(-50%)',
+                                cursor: 'pointer'
+                            }}
+                        />
+                    )}
+                    <Typography variant="caption" gutterBottom sx={slideNumberStyles}>
                         {currentIndex}
                     </Typography>
                 </div>
