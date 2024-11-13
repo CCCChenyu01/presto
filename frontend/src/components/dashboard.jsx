@@ -64,25 +64,28 @@ const Dashboard = () => {
 
     const postnew = () => {
         getStore()
-            .then((data) => {
-                const storeData = data.store && typeof data.store === "object" ? data.store : {};
-                const newId = Object.keys(storeData).length + 1;
-                storeData[newId] = { "title": title, "1": {} };
+        .then((data) => {
+            const storeData = data.store && typeof data.store === "object" ? data.store : {};
+            console.log(storeData)
+            const keys = Object.keys(storeData);
+            const newId = keys.length > 0 ? Math.max(...keys.map(Number)) + 1 : 1;
+            //const newId = Object.keys(storeData).length + 1;
+            storeData[newId] = { "title": title, "1": {} };
 
-                const userToken = localStorage.getItem('token');
-                const url = 'http://localhost:5005/store';
-                return fetch(url, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-type': 'application/json',
-                        Authorization: `Bearer ${userToken}`
-                    },
-                    body: JSON.stringify({ store: storeData }),
-                })
-                .then((res) => {
-                    getPresentation();
-                });
+            const userToken = localStorage.getItem('token');
+            const url = 'http://localhost:5005/store';
+            return fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-type': 'application/json',
+                    Authorization: `Bearer ${userToken}`
+                },
+                body: JSON.stringify({ store: storeData }),
+            })
+            .then((res) => {
+                getPresentation();
             });
+        });
     };
 
     const getPresentation = () => {
@@ -127,7 +130,7 @@ const Dashboard = () => {
 
             {/* Cards 容器 */}
             <Box sx={{ padding: '20px', display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center' }}>
-                <MediaCard presentation={presentation} />
+                <MediaCard presentation={presentation}/>
             </Box>
 
             {/* New Presentation 模态框 */}
