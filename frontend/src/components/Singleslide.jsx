@@ -14,6 +14,21 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { grey } from '@mui/material/colors';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Paper from '@mui/material/Paper';
+import Drawer from '@mui/material/Drawer';
+import List from '@mui/material/List';
+import Divider from '@mui/material/Divider';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import TextFieldsIcon from '@mui/icons-material/TextFields';
+import ImageIcon from '@mui/icons-material/Image';
+import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
+import CodeIcon from '@mui/icons-material/Code';
+import ReorderIcon from '@mui/icons-material/Reorder';
+import StyleIcon from '@mui/icons-material/Style';
+import PreviewIcon from '@mui/icons-material/Preview';
 
 
 const boxStyle = {
@@ -43,14 +58,17 @@ const boxStyle = {
 
 const SingleSlide = () => {
     const navigate = useNavigate();
-    const {id} = useParams()
+    const {id,currentIndex: initialIndex } = useParams()
     const [presentation,setPresentation] = useState({})
+    const [drawerOpen, setDrawerOpen] = useState(false);
     const [open, setOpen] = React.useState(false);
     const [isEditing, setIsEditing] = useState(false); 
     const [editedTitle, setEditedTitle] = useState(''); 
-    const [currentIndex, setCurrentIndex] = useState(1);
+    const [currentIndex, setCurrentIndex] = useState(Number(initialIndex) || 1);
     const [slideCount,setSlideCount] = useState(1);
     const [errorOpen, setErrorOpen] = useState(false); 
+
+    const handleDrawerToggle = () => setDrawerOpen(!drawerOpen);
     const handleErrorClose = () => setErrorOpen(false); 
 
     const handleOpen = () => setOpen(true);
@@ -69,7 +87,7 @@ const SingleSlide = () => {
 
     useEffect(()=>{
         getPresentation();
-
+        navigate(`/presentation/${id}/${currentIndex}`, { replace: true });
         const handleKeyDown = (event) => {
             if (event.key === 'ArrowLeft') goToPrevious();
             if (event.key === 'ArrowRight') goToNext();
@@ -79,6 +97,27 @@ const SingleSlide = () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
     },[id, currentIndex, slideCount])
+
+    const DrawerList = (
+        <Box sx={{ width: 250 }} role="presentation" onClick={handleDrawerToggle}>
+            <List>
+                {['TEXT', 'IMAGE', 'VIDEO', 'CODE'].map((text, index) => (
+                    <ListItem key={text} disablePadding>
+                        <ListItemButton>
+                            <ListItemIcon>
+                                {index === 0 && <TextFieldsIcon />}
+                                {index === 1 && <ImageIcon />}
+                                {index === 2 && <VideoLibraryIcon />}
+                                {index === 3 && <CodeIcon />}
+                            </ListItemIcon>
+                            <ListItemText primary={text} />
+                        </ListItemButton>
+                    </ListItem>
+                ))}
+            </List>
+            <Divider />
+        </Box>
+    );
 
     const handleDelete = () => {
         getStore()
@@ -181,11 +220,13 @@ const SingleSlide = () => {
 
     //moving between
     const goToPrevious=()=>{
-        setCurrentIndex(prev=>(prev > 1 ? prev-1:prev))
+        //setCurrentIndex(prev=>(prev > 1 ? prev-1:prev))
+        if (currentIndex > 1) setCurrentIndex(currentIndex - 1);
     }
 
     const goToNext=()=>{
-        setCurrentIndex(prev=>(prev < slideCount ? prev+1:prev))
+        //setCurrentIndex(prev=>(prev < slideCount ? prev+1:prev))
+        if (currentIndex < slideCount) setCurrentIndex(currentIndex + 1);
     }
     
     //Creating slides
@@ -218,6 +259,16 @@ const SingleSlide = () => {
             }); // Refresh presentation data
             getPresentation()
         });
+    };
+
+    //预览在这里
+    const handlePreview =()=>{
+        console.log("preview")
+    };
+
+    //风格在这里
+    const handleStyle =()=>{
+        console.log("style")
     };
 
     // button style
@@ -257,6 +308,10 @@ const SingleSlide = () => {
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
                 <Toolbar>
+                    {/* Drawer Toggle Button */}
+                    <ReorderIcon onClick={handleDrawerToggle} sx={{ color: 'white', marginRight: 2 }}>
+                        Tools
+                    </ReorderIcon>
                     {/* title with edit functionality */}
                     <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
                         {isEditing ? (
@@ -304,6 +359,10 @@ const SingleSlide = () => {
                     </Box>
                 </Toolbar>
             </AppBar>
+            
+            <Drawer anchor="left" open={drawerOpen} onClose={handleDrawerToggle}>
+                {DrawerList}
+            </Drawer>
 
             {/* delete modal */}
             <Modal
@@ -330,7 +389,7 @@ const SingleSlide = () => {
                 </Box>
             </Modal>
             
-            {/* 删除错误提示弹窗 */}
+            {/* delete error modal */}
             <Modal
                 open={errorOpen}
                 onClose={handleErrorClose}
@@ -347,14 +406,15 @@ const SingleSlide = () => {
                     <Button onClick={handleErrorClose}>OK</Button>
                 </Box>
             </Modal>
+            
+
 
             {/* Centered black bordered box */}
             <Box sx={slideBoxStyles}>
-                <div 
+                <Paper elevation={3}
                     style={{ 
                         width: '60%', 
                         aspectRatio: '16 / 9', 
-                        border: '1px solid black',
                         position: 'relative',  
                         marginRight: '10%', 
                         marginLeft: 'auto' 
@@ -383,7 +443,7 @@ const SingleSlide = () => {
                     <Typography variant="caption" gutterBottom sx={slideNumberStyles}>
                         {currentIndex}
                     </Typography>
-                </div>
+                </Paper>
                 <Box 
                     sx={{ 
                         display: 'flex', 
@@ -401,6 +461,15 @@ const SingleSlide = () => {
                         onClick={handleSlideDelete}
                         sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
                     />
+                    <StyleIcon 
+                        onClick={handleStyle}
+                        sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
+                    />
+                    <PreviewIcon 
+                        onClick={handlePreview}
+                        sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
+                    />
+
                 </Box>
             </Box>
         </Box>

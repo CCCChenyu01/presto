@@ -15,7 +15,7 @@ function App() {
         <Route path="/login" element={<SignInForm/>}></Route>
         <Route path="/register" element={<SignUpForm/>}></Route>
         <Route path="/dashboard" element={<Dashboard/>}></Route>
-        <Route path="/presentation/:id" element={<SingleSlide/>}></Route>
+        <Route path="/presentation/:id/:currentIndex" element={<SingleSlide/>}></Route>
       </Routes>
     </BrowserRouter>
   )
