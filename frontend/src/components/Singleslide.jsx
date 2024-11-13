@@ -9,7 +9,10 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import EditIcon from '@mui/icons-material/Edit';
 import TextField from '@mui/material/TextField';
-
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { grey } from '@mui/material/colors';
 const boxStyle = {
     width: '400px', 
     position: 'absolute',
@@ -42,9 +45,26 @@ const SingleSlide = () => {
     const [open, setOpen] = React.useState(false);
     const [isEditing, setIsEditing] = useState(false); 
     const [editedTitle, setEditedTitle] = useState(''); 
+    const [currentIndex, setCurrentIndex] = useState(1);
+    const [slideCount,setSlideCount] = useState(1);
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+
+    const getPresentation = () => {
+        getStore()
+        .then(data => {
+            const singlePresentation = data.store[id]
+            setPresentation(singlePresentation);
+
+            const slides = Object.keys(singlePresentation).filter(key =>key !== 'title')
+            setSlideCount(slides.length)
+        });
+    };
+
+    useEffect(()=>{
+        getPresentation()
+    },[id])
 
     const handleDelete = () => {
         getStore()
@@ -72,18 +92,6 @@ const SingleSlide = () => {
     const handleBack = () => {
         navigate('/dashboard'); // back to dashboard
     };
-
-    const getPresentation = () => {
-        getStore()
-        .then(data => {
-            const singlePresentation = data.store[id]
-            setPresentation(singlePresentation);
-        });
-    };
-
-    useEffect(()=>{
-        getPresentation()
-    },[id])
 
     const handleEditClick = () => {
         setIsEditing(true);
@@ -117,6 +125,24 @@ const SingleSlide = () => {
                 return res.json()
             })
         })
+    };
+
+    const handleAddPage = () => {
+        getStore().then(data => {
+            const maxKey = Math.max(...Object.keys(data.store[id]).map(Number));
+            data.store[id][maxKey + 1] = {}; // Add new empty page
+            const userToken = localStorage.getItem('token');
+            const url = 'http://localhost:5005/store';
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-type': 'application/json',
+                    Authorization: `Bearer ${userToken}`
+                },
+                body: JSON.stringify({ store: data.store }),
+            })
+            .then(() => getPresentation()); // Refresh presentation data
+        });
     };
 
     // button style
@@ -210,6 +236,36 @@ const SingleSlide = () => {
                     </Box>
                 </Box>
             </Modal>
+            {/* Centered black bordered box */}
+            <Box 
+                sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    height: 'calc(100vh - 64px)', // Adjust height to fill remaining space after AppBar
+                    position: 'relative'
+                }}
+            >
+                <div 
+                    style={{ 
+                        width: '60%', 
+                        aspectRatio: '16 / 9', 
+                        border: '1px solid black',
+                        position: 'relative',  
+                        marginRight: '10%', 
+                        marginLeft: 'auto' 
+                    }}
+                >
+                    <Typography variant="caption" gutterBottom sx={{ position: 'absolute', bottom: 0, left: 0, width: '50px', height: '50px', fontSize: '1em', display: 'flex',alignItems: 'center', justifyContent: 'center'}}>
+                        {currentIndex}
+                    </Typography>
+                </div>
+                <AddCircleIcon 
+                    onClick={handleAddPage}
+                    sx={{ color: grey[400], marginTop: 2, fontSize: 40, cursor: 'pointer' }}
+                />
+            </Box>
         </Box>
     );
 };
