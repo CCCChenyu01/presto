@@ -1,20 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'; 
+import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import MediaCard from './Card';
-import {getStore} from './dataprovider';
+import { getStore } from './dataprovider';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import { blue } from '@mui/material/colors';
 
-
-
-// Style for central box
+// Modal的样式
 const boxStyle = {
     width: '400px', 
     position: 'absolute',
@@ -30,105 +27,110 @@ const boxStyle = {
     gap: 2,
     alignItems: 'center',
 
-    // Media queries for responsiveness
     '@media (max-width: 768px)': {
-        width: '90%',  // Adjust width for medium screens
-        padding: '15px',  // Adjust padding for medium screens
+        width: '90%',  
+        padding: '15px',  
     },
     '@media (max-width: 400px)': {
-        width: '100%',  // Adjust width for small screens
-        padding: '10px',  // Adjust padding for small screens
+        width: '100%',  
+        padding: '10px',  
     },
 };
 
-// Style for main container
-const containerStyle = {
-    position: 'relative',
-    height: '100vh',
-    width: '100vw',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontFamily: 'Arial, sans-serif',
-};
-
-// Style for Logout button
-const logoutButtonStyle = {
-    position: 'absolute',
-    top: '10px',
-    right: '20px',
-};
-
-// Style for New presentation button
-const newPresentationButtonStyle = {
-    position: 'absolute',
-    top: '10px',
-    left: '10px',
+// AppBar按钮样式
+const toolbarButtonStyle = {
+    marginLeft: '10px',
+    color: blue[500],
+    backgroundColor: '#fff',
+    border: `1px solid ${blue[500]}`,
+    '&:hover': {
+        backgroundColor: blue[50],
+    },
 };
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+    const [title, setTitle] = useState("");
+    const [presentation, setPresentation] = useState([]);
+
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const [title,setTitle]= useState("")
-    const [presentation,setPresentation]= useState([])
-
     const handleLogout = () => {
-        // Clear token from localStorage
         localStorage.removeItem('token');
-        // Navigate back to login page
         navigate('/');
     };
 
-    const postnew =()=>{
+    const postnew = () => {
         getStore()
-        // get data
-        .then((data)=>{
-            console.log(data)
-            // change the data
-            const storeData = data.store && typeof data.store === "object" ? data.store:{};
-            const newId = Object.keys(storeData).length + 1;
-            storeData[newId] = {"title":title,"1":{}};
+            .then((data) => {
+                const storeData = data.store && typeof data.store === "object" ? data.store : {};
+                const newId = Object.keys(storeData).length + 1;
+                storeData[newId] = { "title": title, "1": {} };
 
-            //put new data
-            const userToken = localStorage.getItem('token')
-            const url = 'http://localhost:5005/store'
-            return fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-type': 'application/json',
-                    Authorization: `Bearer ${userToken}`
-                },
-                body:JSON.stringify({store:storeData}),
-            })
-            .then((res)=>{
-                console.log("hhhhhh")
-                getPresentation()
-            })
-        })
-    }
+                const userToken = localStorage.getItem('token');
+                const url = 'http://localhost:5005/store';
+                return fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-type': 'application/json',
+                        Authorization: `Bearer ${userToken}`
+                    },
+                    body: JSON.stringify({ store: storeData }),
+                })
+                .then((res) => {
+                    getPresentation();
+                });
+            });
+    };
 
-    const getPresentation=()=>{
+    const getPresentation = () => {
         getStore()
-        .then(data=>{
-            console.log(data)
-            setPresentation(data.store)
-        })
-    }
+            .then(data => {
+                setPresentation(data.store);
+            });
+    };
 
-    useEffect(()=>{
-        getPresentation()
-    },[])
+    useEffect(() => {
+        getPresentation();
+    }, []);
 
     return (
-        <div style={containerStyle}>
-            <Button variant="contained" style={logoutButtonStyle} onClick={handleLogout}>
-                Logout
-            </Button>
-            <Button variant="outlined" style={newPresentationButtonStyle} onClick={handleOpen}>New presentation</Button>
-            <MediaCard presentation={presentation}/>
+        <Box sx={{ flexGrow: 1 }}>
+            <AppBar position="static">
+                <Toolbar sx={{ justifyContent: 'space-between' }}>
+                    {/* 左侧的 Presto 文字和 New presentation 按钮 */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <Typography variant="h6" component="div">
+                            Presto
+                        </Typography>
+                        <Button 
+                            variant="outlined" 
+                            onClick={handleOpen}
+                            sx={toolbarButtonStyle}
+                        >
+                            New presentation
+                        </Button>
+                    </Box>
+                    
+                    {/* 右侧的 Logout 按钮 */}
+                    <Button 
+                        variant="contained" 
+                        color="error"
+                        onClick={handleLogout}
+                    >
+                        Logout
+                    </Button>
+                </Toolbar>
+            </AppBar>
+
+            {/* Cards 容器 */}
+            <Box sx={{ padding: '20px', display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center' }}>
+                <MediaCard presentation={presentation} />
+            </Box>
+
+            {/* New Presentation 模态框 */}
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -136,13 +138,24 @@ const Dashboard = () => {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={boxStyle}>
-                <TextField id="presentationName" label="Presentation Name" variant="outlined" onChange={(e) => setTitle(e.target.value)} value={title}/>
-                <Button variant="contained" onClick={() => { postnew(); handleClose(); }} sx={{ mt: 2 }}>Create</Button>
+                    <TextField 
+                        id="presentationName" 
+                        label="Presentation Name" 
+                        variant="outlined" 
+                        onChange={(e) => setTitle(e.target.value)} 
+                        value={title}
+                    />
+                    <Button 
+                        variant="contained" 
+                        onClick={() => { postnew(); handleClose(); }} 
+                        sx={{ mt: 2 }}
+                    >
+                        Create
+                    </Button>
                 </Box>
             </Modal>
-        </div>
+        </Box>
     );
 };
 
-
-export default Dashboard
+export default Dashboard;

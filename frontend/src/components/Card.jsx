@@ -1,10 +1,12 @@
-import * as React from 'react'; 
+import * as React from 'react';  
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import { useNavigate } from 'react-router-dom';
 
 const MediaCard = (props) => {
     const temp = props.presentation ? Object.entries(props.presentation) : [];
@@ -13,67 +15,77 @@ const MediaCard = (props) => {
         return null;
     }
 
+    const navigate=useNavigate()
+    const gotosingle=(id)=>{
+      navigate(`/presentation/${id}`)
+    }
     return (
-        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center' }}>
-            {temp.map(([id, presentation]) => (
-                <Card
-                    key={id}
-                    sx={{
-                        width: '200px',
-                        height: '100px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        padding: '10px',
-                        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-                    }}
-                >
-                    <CardMedia
-                        sx={{ height: 60, backgroundColor: presentation.thumbnail ? 'transparent' : '#e0e0e0' }}
-                        image={presentation.thumbnail || ''}
-                        title={presentation.title || 'Thumbnail'}
-                        component="img"
-                        style={{
-                            width: '100%',
-                            aspectRatio: '2 / 1',
-                            objectFit: 'cover',
-                            display: presentation.thumbnail ? 'block' : 'none',
-                        }}
-                    />
-                    {!presentation.thumbnail && (
-                        <div style={{
-                            width: '100%',
-                            height: '60px',
-                            backgroundColor: '#e0e0e0',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}>
-                            <Typography variant="subtitle2" color="textSecondary">
-                                No Image
-                            </Typography>
-                        </div>
-                    )}
-                    <CardContent sx={{ padding: '5px 0' }}>
-                        <Typography variant="h6" component="div" noWrap>
-                            {presentation.title || 'Untitled'}
-                        </Typography>
-                        {presentation.description && (
-                            <Typography variant="body2" color="textSecondary" noWrap>
-                                {presentation.description}
-                            </Typography>
-                        )}
-                        <Typography variant="caption" color="textSecondary">
-                            Slides: {presentation.slidesCount || 0}
-                        </Typography>
-                    </CardContent>
-                    <CardActions sx={{ padding: '5px 5px', justifyContent: 'flex-end' }}>
-                        <Button size="small" onClick={() => gotosingle(id)}>Edit</Button>
-                    </CardActions>
-                </Card>
-            ))}
-        </div>
-    );
+      <Box 
+        sx={{ 
+            display: 'flex', 
+            gap: '15px', 
+            flexWrap: 'wrap', 
+            justifyContent: 'center', // Center content
+        }}
+      >
+          {temp.map(([id, presentation]) => (
+              <Card 
+                key={id} 
+                sx={{ 
+                    width: '200px', // Set width as twice the height for 2:1 ratio
+                    height: '100px', // Set height to half the width
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    boxShadow: 3,
+                    '@media (min-width: 768px)': {
+                        width: '250px', // Adjust for larger screens
+                        height: '125px',
+                    },
+                    '@media (min-width: 1200px)': {
+                        width: '300px', // Adjust for very large screens
+                        height: '150px',
+                    },
+                }}
+              >
+                  {/* Thumbnail */}
+                  <CardMedia
+                      sx={{ 
+                          height: '50%', 
+                          bgcolor: presentation.thumbnail ? 'transparent' : 'grey.300', // Grey if empty
+                      }}
+                      image={presentation.thumbnail || ""}
+                      title={presentation.title || "No Image"}
+                  />
+                  
+                  {/* Card Content */}
+                  <CardContent sx={{ padding: '8px', textAlign: 'left' }}>
+                      {/* Title */}
+                      <Typography variant="h6" component="div">
+                          {presentation.title}
+                      </Typography>
+
+                      {/* Description (show only if available) */}
+                      {presentation.description && (
+                          <Typography variant="body2" color="text.secondary">
+                              {presentation.description}
+                          </Typography>
+                      )}
+
+                      {/* Slide Count */}
+                      <Typography variant="body2" color="text.secondary">
+                          Slides: {presentation.slides ? presentation.slides.length : 0}
+                      </Typography>
+                  </CardContent>
+
+                  {/* Actions */}
+                  <CardActions>
+                      <Button size="small" onClick={() => gotosingle(id)}>Edit</Button>
+                  </CardActions>
+              </Card>
+          ))}
+      </Box>
+  );
 };
 
 export default MediaCard;
