@@ -129,7 +129,7 @@ const Dashboard = () => {
             </AppBar>
 
             {/* Cards 容器 */}
-            <Box sx={{ padding: '20px', display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center' }}>
+            <Box>
                 <MediaCard presentation={presentation}/>
             </Box>
 

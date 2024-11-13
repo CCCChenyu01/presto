@@ -7,6 +7,8 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
+import EditIcon from '@mui/icons-material/Edit';
+import TextField from '@mui/material/TextField';
 
 const boxStyle = {
     width: '400px', 
@@ -35,8 +37,12 @@ const boxStyle = {
 
 const SingleSlide = () => {
     const navigate = useNavigate();
-
+    const {id} = useParams()
+    const [presentation,setPresentation] = useState({})
     const [open, setOpen] = React.useState(false);
+    const [isEditing, setIsEditing] = useState(false); 
+    const [editedTitle, setEditedTitle] = useState(''); 
+
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
@@ -45,7 +51,7 @@ const SingleSlide = () => {
         .then(data=>{
             delete data.store[id]
             console.log(data)
-            
+
             const userToken = localStorage.getItem('token');
             const url = 'http://localhost:5005/store';
             fetch(url, {
@@ -67,9 +73,6 @@ const SingleSlide = () => {
         navigate('/dashboard'); // back to dashboard
     };
 
-    const {id} = useParams()
-    const [presentation,setPresentation] = useState({})
-
     const getPresentation = () => {
         getStore()
         .then(data => {
@@ -81,6 +84,40 @@ const SingleSlide = () => {
     useEffect(()=>{
         getPresentation()
     },[id])
+
+    const handleEditClick = () => {
+        setIsEditing(true);
+    };
+
+    const handleTitleChange = (e) => {
+        setEditedTitle(e.target.value);
+    };
+
+    const handleTitleSave = () => {
+        setIsEditing(false);
+        //setPresentation(prev => ({ ...prev, title: editedTitle }));
+        // Optionally: Save the updated title back to the server
+        getStore()
+        .then(data=>{
+            console.log(data)
+            data.store[id].title = editedTitle; 
+            setPresentation(prev => ({ ...prev, title: editedTitle }));
+
+            const userToken = localStorage.getItem('token');
+            const url = 'http://localhost:5005/store';
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-type': 'application/json',
+                    Authorization: `Bearer ${userToken}`
+                },
+                body: JSON.stringify({ store: data.store}),
+            })
+            .then((res)=>{
+                return res.json()
+            })
+        })
+    };
 
     // button style
     const buttonStyles = {
@@ -98,10 +135,33 @@ const SingleSlide = () => {
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
                 <Toolbar>
-                    {/* title*/}
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        {presentation.title}
-                    </Typography>
+                    {/* title with edit functionality */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+                        {isEditing ? (
+                            <TextField
+                                value={editedTitle}
+                                onChange={handleTitleChange}
+                                onBlur={handleTitleSave}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleTitleSave();
+                                }}
+                                size="small"
+                                variant="outlined"
+                                sx={{ marginRight: 1 }}
+                            />
+                        ) : (
+                            <Typography variant="h6" component="div">
+                                {presentation.title}
+                            </Typography>
+                        )}
+                        <EditIcon 
+                            onClick={handleEditClick} 
+                            sx={{ cursor: 'pointer', marginLeft: 1 }} 
+                        />
+                    </Box>
+
+
+                    {/* 缩略图写在这 */}
                     
                     {/* box for delete and back */}
                     <Box sx={{ display: 'flex', gap: 2 }}>

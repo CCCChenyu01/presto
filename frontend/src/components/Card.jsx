@@ -34,15 +34,18 @@ const MediaCard = (props) => {
                 <Card 
                     key={id} 
                     sx={{ 
-                        width: '100%', 
-                        maxWidth: '300px',
+                        flexBasis: 'calc(25% - 15px)', 
+                        maxWidth: '300px', // maxwidth limit
                         height: 'auto', 
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
                         boxShadow: 3,
-                        '@media (max-width: 400px)': {
-                            maxWidth: '100%', 
+                        '@media (max-width: 768px)': {
+                            flexBasis: 'calc(50% - 15px)', // two card
+                        },
+                        '@media (max-width: 500px)': {
+                            flexBasis: '100%', // one card
                         },
                     }}
                 >
