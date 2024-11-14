@@ -1,12 +1,18 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import LandingPage from './LandingPage';
 import { MemoryRouter } from 'react-router-dom';
+import LandingPage from '../components/LandingPage';
+import { vi } from 'vitest';
 
-// Mock useNavigate hook
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
-}));
+// 手动模拟 useNavigate
+const mockedNavigate = vi.fn();
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockedNavigate,
+  };
+});
 
 describe('LandingPage Component', () => {
   test('renders welcome message', () => {
@@ -15,27 +21,10 @@ describe('LandingPage Component', () => {
         <LandingPage />
       </MemoryRouter>
     );
-
-    // 检查是否正确渲染欢迎信息
     expect(screen.getByText(/Welcome to Presto!/i)).toBeInTheDocument();
   });
 
-  test('renders login and register buttons', () => {
-    render(
-      <MemoryRouter>
-        <LandingPage />
-      </MemoryRouter>
-    );
-
-    // 检查是否渲染登录和注册按钮
-    expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /register/i })).toBeInTheDocument();
-  });
-
   test('navigates to login page when login button is clicked', () => {
-    const navigate = jest.fn();
-    jest.spyOn(require('react-router-dom'), 'useNavigate').mockReturnValue(navigate);
-
     render(
       <MemoryRouter>
         <LandingPage />
@@ -43,13 +32,10 @@ describe('LandingPage Component', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
-    expect(navigate).toHaveBeenCalledWith('/login');
+    expect(mockedNavigate).toHaveBeenCalledWith('/login');
   });
 
   test('navigates to register page when register button is clicked', () => {
-    const navigate = jest.fn();
-    jest.spyOn(require('react-router-dom'), 'useNavigate').mockReturnValue(navigate);
-
     render(
       <MemoryRouter>
         <LandingPage />
@@ -57,6 +43,6 @@ describe('LandingPage Component', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: /register/i }));
-    expect(navigate).toHaveBeenCalledWith('/register');
+    expect(mockedNavigate).toHaveBeenCalledWith('/register');
   });
 });
