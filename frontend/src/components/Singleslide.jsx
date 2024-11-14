@@ -596,3 +596,68 @@ const SingleSlide = () => {
                 </div>
               )}
 
+{elements.img&&(
+                <img
+                  src={elements.img}
+                  alt={elements.tag || "image"}/>
+                                
+              )}
+
+
+            </div>
+          ))}    
+
+          {currentIndex > 1 && (
+            <KeyboardArrowUpIcon 
+              onClick={goToPrevious}
+              sx={{
+                position: 'absolute', top: '50%', left: 0, transform: 'translateY(-50%)',
+                cursor: 'pointer'
+              }}
+            />
+          )}
+          {currentIndex < slideCount && (
+            <KeyboardArrowDownIcon 
+              onClick={goToNext}
+              sx={{
+                position: 'absolute', top: '50%', right: 0, transform: 'translateY(-50%)',
+                cursor: 'pointer'
+              }}
+            />
+          )}
+          <Typography variant="caption" gutterBottom sx={slideNumberStyles}>
+            {currentIndex}
+          </Typography>
+        </Paper>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 2, 
+            marginTop: 2, 
+            justifyContent: 'center' 
+          }}
+        >
+          <AddCircleIcon 
+            onClick={handleAddPage}
+            sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
+          />
+          <DeleteIcon 
+            onClick={handleSlideDelete}
+            sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
+          />
+          <StyleIcon 
+            onClick={handleBackground}
+            sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
+          />
+          <PreviewIcon 
+            onClick={handlePreview}
+            sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
+          />
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+export default SingleSlide;
