@@ -171,6 +171,10 @@ const SingleSlide = () => {
             }
             presentationdata[currentIndex].elements.push(imageElement);
 
+            if (!presentationdata.thumbnail) {
+                presentationdata.thumbnail = imageURL;
+            }
+
             const userToken = localStorage.getItem('token');
             const url = 'http://localhost:5005/store';
             fetch(url, {
