@@ -468,4 +468,126 @@ const SingleSlide = () => {
                 </Box>
             </Modal>
 
+            <Modal
+                open={imageOpen}
+                onClose={handleImageClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={boxStyle}>
+                    <TextField id="imageAreaSize" label="Area size" variant="outlined" />  
+                    <TextField id="imageURL" label="URL" variant="outlined" />
+                    <TextField id="descriptionAltTag" label="Description" variant="outlined" />
+                    <Button onClick={handleImage}>Submit</Button>
+                </Box>
+            </Modal>
 
+            <Modal
+                open={videoOpen}
+                onClose={handleVideoClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={boxStyle}>
+                    <TextField id="vedioAreaSize" label="Area size" variant="outlined" />  
+                    <TextField id="vedioURL" label="URL" variant="outlined" />
+                    <FormControlLabel control={<Switch defaultChecked />} label="Auto-play" />
+                    <Button onClick={handleVideo}>Submit</Button>
+                </Box>
+            </Modal>
+            
+            <Modal
+                open={codeOpen}
+                onClose={handleCodeClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={boxStyle}>
+                    <TextField id="codeBlockSize" label="Block size" variant="outlined" />  
+                    <TextField id="code" label="Code" variant="outlined" />
+                    <TextField id="codeFontSize" label="Font size" variant="outlined" />
+                    <Button onClick={handleCode}>Submit</Button>
+                </Box>
+            </Modal>
+
+            <Box sx={slideBoxStyles}>
+                <Paper elevation={3}
+                    style={{ 
+                        width: '60%', 
+                        aspectRatio: '16 / 9', 
+                        position: 'relative',  
+                        marginRight: '10%', 
+                        marginLeft: 'auto' 
+                    }}
+                >
+                    {currentElements.map((elements, index) => (
+                        <div key={index} style={{
+                            position: "absolute",
+                            top: `${elements.position?.y}`,
+                            left: `${elements.position?.x}`,
+                            color: elements.color,
+                            fontSize: `${elements.fontsize}em`,
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap',        // Prevents wrapping to a new line
+                            textOverflow: 'ellipsis',    // Shows ellipsis if content overflows
+                            maxWidth: '100%', 
+                            maxHeight: '100%',
+                            border: '1px solid grey'
+                        }}>
+                            {elements.text}
+                        </div>
+                    ))}    
+                    {currentIndex > 1 && (
+                        <KeyboardArrowUpIcon 
+                            onClick={goToPrevious}
+                            sx={{
+                                position: 'absolute', top: '50%', left: 0, transform: 'translateY(-50%)',
+                                cursor: 'pointer'
+                            }}
+                        />
+                    )}
+                    {currentIndex < slideCount && (
+                        <KeyboardArrowDownIcon 
+                            onClick={goToNext}
+                            sx={{
+                                position: 'absolute', top: '50%', right: 0, transform: 'translateY(-50%)',
+                                cursor: 'pointer'
+                            }}
+                        />
+                    )}
+                    <Typography variant="caption" gutterBottom sx={slideNumberStyles}>
+                        {currentIndex}
+                    </Typography>
+                </Paper>
+                <Box 
+                    sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 2, 
+                        marginTop: 2, 
+                        justifyContent: 'center' 
+                    }}
+                >
+                    <AddCircleIcon 
+                        onClick={handleAddPage}
+                        sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
+                    />
+                    <DeleteIcon 
+                        onClick={handleSlideDelete}
+                        sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
+                    />
+                    <StyleIcon 
+                        onClick={handleStyle}
+                        sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
+                    />
+                    <PreviewIcon 
+                        onClick={handlePreview}
+                        sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
+                    />
+                </Box>
+            </Box>
+        </Box>
+    );
+};
+
+export default SingleSlide;
