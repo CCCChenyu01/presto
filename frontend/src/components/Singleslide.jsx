@@ -398,3 +398,201 @@ const SingleSlide = () => {
     position: 'relative',
   };
 
+  const slideNumberStyles = {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '50px',
+    height: '50px',
+    fontSize: '1em',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  };
+
+
+  return (
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        <Toolbar>
+          <ReorderIcon onClick={handleDrawerToggle} sx={{ color: 'white', marginRight: 2 }}>
+                        Tools
+          </ReorderIcon>
+          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+            {isEditing ? (
+              <TextField
+                value={editedTitle}
+                onChange={handleTitleChange}
+                onBlur={handleTitleSave}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleTitleSave();
+                }}
+                size="small"
+                variant="outlined"
+                sx={{ marginRight: 1 }}
+              />
+            ) : (
+              <Typography variant="h6" component="div">
+                {presentation.title}
+              </Typography>
+            )}
+            <EditIcon 
+              onClick={handleEditClick} 
+              sx={{ cursor: 'pointer', marginLeft: 1 }} 
+            />
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button 
+              variant="outlined"
+              onClick={handleOpen}
+              sx={buttonStyles}
+            >
+                            Delete
+            </Button>
+            <Button 
+              variant="outlined"
+              onClick={handleBack}
+              sx={buttonStyles}
+            >
+                            Back
+            </Button>
+          </Box>
+        </Toolbar>
+      </AppBar>
+            
+      <Drawer anchor="left" open={drawerOpen} onClose={handleDrawerToggle} sx={{ width: '30%' }}>
+        {DrawerList}
+      </Drawer>
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={boxStyle}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Are you sure?
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+            <Button 
+              variant="contained" 
+              onClick={() => { handleDelete(); handleClose(); }}
+            >
+                            Yes
+            </Button>
+            <Button variant="contained" onClick={handleClose}>
+                            No
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+            
+      <Modal
+        open={errorOpen}
+        onClose={handleErrorClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={boxStyle}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Cannot delete the only slide
+          </Typography>
+          <Typography variant="body2">
+                        Please delete the entire presentation instead.
+          </Typography>
+          <Button onClick={handleErrorClose}>OK</Button>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={textOpen}
+        onClose={handleTextClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={boxStyle}>
+          <TextField id="textAreaSize" label="Area size" variant="outlined" onChange={(e) => setTextAreaSize(e.target.value)} value={textareasize} />  
+          <TextField id="text" label="Text" variant="outlined" onChange={(e) => setText(e.target.value)} value={text} />
+          <TextField id="fontSize" label="Font size" variant="outlined" onChange={(e) => setfontSize(e.target.value)} value={fontsize} />
+          <TextField id="textColour" label="Colour" variant="outlined" onChange={(e) => settextColour(e.target.value)} value={textcolour} />
+          <Button onClick={handleText}>Submit</Button>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={imageOpen}
+        onClose={handleImageClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={boxStyle}>
+          <TextField id="imageAreaSize" label="Area size" variant="outlined" onChange={(e) => setImageAreaSize(e.target.value)} value={imageareasize}/>  
+          <TextField id="imageURL" label="URL" variant="outlined" onChange={(e) => setimageURL(e.target.value)} value={imageURL}/>
+          <TextField id="descriptionAltTag" label="Description" variant="outlined" onChange={(e) => setDescriptionAltTag(e.target.value)} value={descriptionalttag}/>
+          <Button onClick={handleImage}>Submit</Button>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={videoOpen}
+        onClose={handleVideoClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={boxStyle}>
+          <TextField id="vedioAreaSize" label="Area size" variant="outlined" />  
+          <TextField id="vedioURL" label="URL" variant="outlined" />
+          <FormControlLabel control={<Switch defaultChecked />} label="Auto-play" />
+          <Button onClick={handleVideo}>Submit</Button>
+        </Box>
+      </Modal>
+            
+      <Modal
+        open={codeOpen}
+        onClose={handleCodeClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={boxStyle}>
+          <TextField id="codeBlockSize" label="Block size" variant="outlined" />  
+          <TextField id="code" label="Code" variant="outlined" />
+          <TextField id="codeFontSize" label="Font size" variant="outlined" />
+          <Button onClick={handleCode}>Submit</Button>
+        </Box>
+      </Modal>
+
+      <Box sx={slideBoxStyles}>
+        <Paper elevation={3}
+          style={{ 
+            width: '60%', 
+            aspectRatio: '16 / 9', 
+            position: 'relative',  
+            marginRight: '10%', 
+            marginLeft: 'auto' 
+          }}
+        >
+          {currentElements.map((elements, index) => (
+            <div key={index} style={{
+              position: "absolute",
+              top: `${elements.position?.y}`,
+              left: `${elements.position?.x}`,
+              wigth: `${elements.size}`,
+              height: `${elements.size}`,
+              color: elements.color,
+              fontSize: `${elements.fontsize}em`,
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',        // Prevents wrapping to a new line
+              textOverflow: 'ellipsis',    // Shows ellipsis if content overflows
+              maxWidth: '100%', 
+              maxHeight: '100%',
+              border: '1px solid grey'
+
+            }}
+            >
+              {elements.text&&(
+                <div>
+                  {elements.text}
+                </div>
+              )}
+
