@@ -198,4 +198,203 @@ const SingleSlide = () => {
         .then(() => {
           getPresentation();
           console.log("Updated presentation data:", presentationdata);
+          handleImageClose();
+        });
+    });
+  };
+
+  const handleVideo = () => {
+    console.log("Video option selected");
+  };
+
+  const handleCode = () => {
+    console.log("Code option selected");
+  };
+
+
+  const DrawerList = (
+    <Box sx={{ width: '100%' }} role="presentation" onClick={handleDrawerToggle}>
+      <List>
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleTextOpen}>
+            <ListItemIcon><TextFieldsIcon /></ListItemIcon>
+            <ListItemText primary="TEXT" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleImageOpen}>
+            <ListItemIcon><ImageIcon /></ListItemIcon>
+            <ListItemText primary="IMAGE" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleVideoOpen}>
+            <ListItemIcon><VideoLibraryIcon /></ListItemIcon>
+            <ListItemText primary="VIDEO" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleCodeOpen}>
+            <ListItemIcon><CodeIcon /></ListItemIcon>
+            <ListItemText primary="CODE" />
+          </ListItemButton>
+        </ListItem>
+      </List>
+      <Divider />
+    </Box>
+  );
+
+  const handleDelete = () => {
+    getStore().then(data => {
+      delete data.store[id];
+      console.log(data);
+
+      const userToken = localStorage.getItem('token');
+      const url = 'http://localhost:5005/store';
+      fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ store: data.store }),
+      })
+        .then((res)=>{
+          return res.json()
+        })
+      navigate('/dashboard')
+    })
+  };
+
+  const handleSlideDelete = () => {
+    getStore()
+      .then(data => {
+        const presentation = data.store[id];
+        const slideKeys = Object.keys(presentation).filter(key => key !== 'title');
+
+        if (slideKeys.length === 1) {
+          setErrorOpen(true);
+          return;
+        }
+        const keyToDelete = slideKeys[currentIndex - 1];
+        console.log(`Deleting slide at index ${currentIndex} with key ${keyToDelete}`);
+            
+        delete presentation[keyToDelete];
+
+        const newSlideIndex = currentIndex > 1 ? currentIndex - 1 : 1;
+        setCurrentIndex(newSlideIndex);
+
+        const userToken = localStorage.getItem('token');
+        const url = 'http://localhost:5005/store';
+        fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ store: data.store }),
+        })
+          .then((res) => {
+            return res.json() 
+          });
+        getPresentation();
+      });
+  };
+
+  const handleBack = () => {
+    navigate('/dashboard');
+  };
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleTitleChange = (e) => {
+    setEditedTitle(e.target.value);
+  };
+
+  const handleTitleSave = () => {
+    setIsEditing(false);
+    getStore().then(data => {
+      console.log(data);
+      data.store[id].title = editedTitle;
+      setPresentation(prev => ({ ...prev, title: editedTitle }));
+
+      const userToken = localStorage.getItem('token');
+      const url = 'http://localhost:5005/store';
+      fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ store: data.store }),
+      })
+        .then(res => res.json());
+    });
+  };
+    //moving between
+  const goToPrevious = () => {
+    if (currentIndex > 1) setCurrentIndex(currentIndex - 1);
+  };
+
+  const goToNext = () => {
+    if (currentIndex < slideCount) setCurrentIndex(currentIndex + 1);
+  };
+    //Creating slides
+  const handleAddPage = () => {
+    getStore().then(data => {
+      const presentation = data.store[id];
+      const numericKeys = Object.keys(presentation)
+        .map(Number)
+        .filter(key => !isNaN(key));
+      const maxKey = numericKeys.length > 0 ? Math.max(...numericKeys) : 0;
+      const newId = maxKey + 1;
+      presentation[newId] = {};
+
+      console.log(data);
+      const userToken = localStorage.getItem('token');
+      const url = 'http://localhost:5005/store';
+      fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ store: data.store }),
+      })
+        .then((res) => {
+          return res.json()
+        }); // Refresh presentation data
+      getPresentation()
+    });
+  };
+    //预览在这里
+  const handlePreview = () => {
+    console.log("preview");
+  };
+    //风格在这里
+  const handleBackground = () => {
+    console.log("style");
+  };
+    // button style
+  const buttonStyles = {
+    color: 'primary',
+    bgcolor: 'white',
+    borderColor: 'white',
+    '&:hover': {
+      bgcolor: 'red',
+      color: 'white',
+      borderColor: 'red',
+    },
+  };
+
+  const slideBoxStyles = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 'calc(100vh - 64px)',
+    position: 'relative',
+  };
 
