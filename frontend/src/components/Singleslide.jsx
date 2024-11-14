@@ -81,10 +81,19 @@ const SingleSlide = () => {
 
     const handleDrawerToggle = () => setDrawerOpen(!drawerOpen);
     const handleErrorClose = () => setErrorOpen(false);
-    const handleTextClose = () => setTextOpen(false);
+    const handleTextClose = () => {
+        setImageOpen(false);
+        setTextAreaSize('')
+        setText('')
+        setfontSize('')
+        settextColour('')
+    };    
     const handleTextOpen = () => setTextOpen(true);
     const handleImageClose = () => {
         setImageOpen(false);
+        setImageAreaSize('')
+        setimageURL('')
+        setDescriptionAltTag('')
     };    
     const handleImageOpen = () => setImageOpen(true);
     const handleVideoClose = () => setVideoOpen(false);
@@ -365,7 +374,7 @@ const SingleSlide = () => {
         console.log("preview");
     };
     //风格在这里
-    const handleStyle = () => {
+    const handleBackground = () => {
         console.log("style");
     };
     // button style
@@ -400,6 +409,7 @@ const SingleSlide = () => {
         alignItems: 'center',
         justifyContent: 'center',
     };
+
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -577,7 +587,9 @@ const SingleSlide = () => {
                             maxWidth: '100%', 
                             maxHeight: '100%',
                             border: '1px solid grey'
-                        }}>
+
+                        }}
+                        >
                             {elements.text&&(
                                 <div>
                                     {elements.text}
@@ -635,7 +647,7 @@ const SingleSlide = () => {
                         sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
                     />
                     <StyleIcon 
-                        onClick={handleStyle}
+                        onClick={handleBackground}
                         sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
                     />
                     <PreviewIcon 
