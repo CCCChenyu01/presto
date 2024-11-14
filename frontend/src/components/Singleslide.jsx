@@ -31,7 +31,6 @@ import StyleIcon from '@mui/icons-material/Style';
 import PreviewIcon from '@mui/icons-material/Preview';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
-import { fontSize } from '@mui/system';
 
 const boxStyle = {
     width: '400px',
@@ -76,12 +75,17 @@ const SingleSlide = () => {
     const [text, setText] = useState('');
     const [fontsize, setfontSize] = useState('');
     const [textcolour, settextColour] = useState('');
+    const [imageareasize, setImageAreaSize] = useState('');
+    const [imageURL, setimageURL] = useState('');
+    const [descriptionalttag, setDescriptionAltTag] = useState('');
 
     const handleDrawerToggle = () => setDrawerOpen(!drawerOpen);
     const handleErrorClose = () => setErrorOpen(false);
     const handleTextClose = () => setTextOpen(false);
     const handleTextOpen = () => setTextOpen(true);
-    const handleImageClose = () => setImageOpen(false);
+    const handleImageClose = () => {
+        setImageOpen(false);
+    };    
     const handleImageOpen = () => setImageOpen(true);
     const handleVideoClose = () => setVideoOpen(false);
     const handleVideoOpen = () => setVideoOpen(true);
@@ -150,6 +154,40 @@ const SingleSlide = () => {
 
     const handleImage = () => {
         console.log("Image option selected");
+        const imageElement = {
+            size: imageareasize,
+            img: imageURL,
+            tag: descriptionalttag,
+            position: { x: 0, y: 0 },
+        };
+        console.log(imageElement)
+
+        getStore().then(data => {
+            const presentationdata = data.store[id];
+            console.log(presentationdata)
+
+            if (!presentationdata[currentIndex].elements) {
+                presentationdata[currentIndex].elements = [];
+            }
+            presentationdata[currentIndex].elements.push(imageElement);
+
+            const userToken = localStorage.getItem('token');
+            const url = 'http://localhost:5005/store';
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-type': 'application/json',
+                    Authorization: `Bearer ${userToken}`,
+                },
+                body: JSON.stringify({ store: data.store }),
+            })
+            .then(res => res.json())
+            .then(() => {
+                getPresentation();
+                console.log("Updated presentation data:", presentationdata);
+                handleImageClose();
+            });
+        });
     };
 
     const handleVideo = () => {
@@ -475,9 +513,9 @@ const SingleSlide = () => {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={boxStyle}>
-                    <TextField id="imageAreaSize" label="Area size" variant="outlined" />  
-                    <TextField id="imageURL" label="URL" variant="outlined" />
-                    <TextField id="descriptionAltTag" label="Description" variant="outlined" />
+                    <TextField id="imageAreaSize" label="Area size" variant="outlined" onChange={(e) => setImageAreaSize(e.target.value)} value={imageareasize}/>  
+                    <TextField id="imageURL" label="URL" variant="outlined" onChange={(e) => setimageURL(e.target.value)} value={imageURL}/>
+                    <TextField id="descriptionAltTag" label="Description" variant="outlined" onChange={(e) => setDescriptionAltTag(e.target.value)} value={descriptionalttag}/>
                     <Button onClick={handleImage}>Submit</Button>
                 </Box>
             </Modal>
@@ -525,6 +563,8 @@ const SingleSlide = () => {
                             position: "absolute",
                             top: `${elements.position?.y}`,
                             left: `${elements.position?.x}`,
+                            wigth: `${elements.size}`,
+                            height: `${elements.size}`,
                             color: elements.color,
                             fontSize: `${elements.fontsize}em`,
                             overflow: 'hidden',
@@ -534,9 +574,23 @@ const SingleSlide = () => {
                             maxHeight: '100%',
                             border: '1px solid grey'
                         }}>
-                            {elements.text}
+                            {elements.text&&(
+                                <div>
+                                    {elements.text}
+                                </div>
+                            )}
+
+                            {elements.img&&(
+                                <img
+                                src={elements.img}
+                                alt={elements.tag || "image"}/>
+                                
+                            )}
+
+
                         </div>
                     ))}    
+
                     {currentIndex > 1 && (
                         <KeyboardArrowUpIcon 
                             onClick={goToPrevious}
