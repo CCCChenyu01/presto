@@ -596,7 +596,7 @@ const SingleSlide = () => {
                 </div>
               )}
 
-{elements.img&&(
+              {elements.img&&(
                 <img
                   src={elements.img}
                   alt={elements.tag || "image"}/>

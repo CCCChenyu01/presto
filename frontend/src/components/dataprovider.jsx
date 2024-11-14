@@ -1,17 +1,17 @@
 export const getStore=()=>{
-    const userToken = localStorage.getItem('token')
-    const url = 'http://localhost:5005/store'
-    return fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        Authorization: `Bearer ${userToken}`
-      },
+  const userToken = localStorage.getItem('token')
+  const url = 'http://localhost:5005/store'
+  return fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json',
+      Authorization: `Bearer ${userToken}`
+    },
+  })
+    .then((res)=>{
+      if(res.ok){
+        return res.json()
+      }
     })
-      .then((res)=>{
-        if(res.ok){
-          return res.json()
-        }
-      })
-  }
+}
   
