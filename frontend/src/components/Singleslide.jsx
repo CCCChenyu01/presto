@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'; 
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { getStore } from './dataprovider';
 import AppBar from '@mui/material/AppBar';
@@ -29,10 +29,12 @@ import CodeIcon from '@mui/icons-material/Code';
 import ReorderIcon from '@mui/icons-material/Reorder';
 import StyleIcon from '@mui/icons-material/Style';
 import PreviewIcon from '@mui/icons-material/Preview';
-
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
+import { fontSize } from '@mui/system';
 
 const boxStyle = {
-    width: '400px', 
+    width: '400px',
     position: 'absolute',
     top: '50%',
     left: '50%',
@@ -45,47 +47,59 @@ const boxStyle = {
     flexDirection: 'column',
     gap: 2,
     alignItems: 'center',
-
     '@media (max-width: 768px)': {
-        width: '90%',  
-        padding: '15px',  
+        width: '90%',
+        padding: '15px',
     },
     '@media (max-width: 400px)': {
-        width: '100%',  
-        padding: '10px',  
+        width: '100%',
+        padding: '10px',
     },
 };
 
 const SingleSlide = () => {
     const navigate = useNavigate();
-    const {id,currentIndex: initialIndex } = useParams()
-    const [presentation,setPresentation] = useState({})
+    const { id, currentIndex: initialIndex } = useParams();
+    const [presentation, setPresentation] = useState({});
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [open, setOpen] = React.useState(false);
-    const [isEditing, setIsEditing] = useState(false); 
-    const [editedTitle, setEditedTitle] = useState(''); 
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedTitle, setEditedTitle] = useState('');
     const [currentIndex, setCurrentIndex] = useState(Number(initialIndex) || 1);
-    const [slideCount,setSlideCount] = useState(1);
-    const [errorOpen, setErrorOpen] = useState(false); 
+    const [slideCount, setSlideCount] = useState(1);
+    const [errorOpen, setErrorOpen] = useState(false);
+    const [textOpen, setTextOpen] = useState(false);
+    const [imageOpen, setImageOpen] = useState(false);
+    const [videoOpen, setVideoOpen] = useState(false);
+    const [codeOpen, setCodeOpen] = useState(false);
+    const [textareasize, setTextAreaSize] = useState('');
+    const [text, setText] = useState('');
+    const [fontsize, setfontSize] = useState('');
+    const [textcolour, settextColour] = useState('');
 
     const handleDrawerToggle = () => setDrawerOpen(!drawerOpen);
-    const handleErrorClose = () => setErrorOpen(false); 
-
+    const handleErrorClose = () => setErrorOpen(false);
+    const handleTextClose = () => setTextOpen(false);
+    const handleTextOpen = () => setTextOpen(true);
+    const handleImageClose = () => setImageOpen(false);
+    const handleImageOpen = () => setImageOpen(true);
+    const handleVideoClose = () => setVideoOpen(false);
+    const handleVideoOpen = () => setVideoOpen(true);
+    const handleCodeClose = () => setCodeOpen(false);
+    const handleCodeOpen = () => setCodeOpen(true);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
     const getPresentation = () => {
-        getStore()
-        .then(data => {
-            const singlePresentation = data.store[id]
+        getStore().then(data => {
+            const singlePresentation = data.store[id];
             setPresentation(singlePresentation);
-
-            const slides = Object.keys(singlePresentation).filter(key =>key !== 'title')
-            setSlideCount(slides.length)
+            const slides = Object.keys(singlePresentation).filter(key => key !== 'title');
+            setSlideCount(slides.length);
         });
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         getPresentation();
         navigate(`/presentation/${id}/${currentIndex}`, { replace: true });
         const handleKeyDown = (event) => {
@@ -93,15 +107,46 @@ const SingleSlide = () => {
             if (event.key === 'ArrowRight') goToNext();
         };
         window.addEventListener('keydown', handleKeyDown);
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    },[id, currentIndex, slideCount])
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [id, currentIndex, slideCount]);
 
-    //菜单在这里
     const handleText = () => {
         console.log("Text option selected");
+        const textBox = {
+            size: textareasize,
+            text: text,
+            fontsize: fontsize,
+            color: textcolour,
+            position: { x: 0, y: 0 },
+        };
+
+        getStore().then(data => {
+            const presentationdata = data.store[id];
+            if (!presentationdata[currentIndex].elements) {
+                presentationdata[currentIndex].elements = [];
+            }
+            presentationdata[currentIndex].elements.push(textBox);
+
+            const userToken = localStorage.getItem('token');
+            const url = 'http://localhost:5005/store';
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-type': 'application/json',
+                    Authorization: `Bearer ${userToken}`,
+                },
+                body: JSON.stringify({ store: data.store }),
+            })
+            .then(res => res.json())
+            .then(() => {
+                getPresentation();
+                handleTextClose();
+            });
+        });
     };
+
+    const currentElements = presentation[currentIndex]?.elements || [];
+    console.log(currentElements);
 
     const handleImage = () => {
         console.log("Image option selected");
@@ -120,25 +165,25 @@ const SingleSlide = () => {
         <Box sx={{ width: '100%' }} role="presentation" onClick={handleDrawerToggle}>
             <List>
                 <ListItem disablePadding>
-                    <ListItemButton onClick={handleText}>
+                    <ListItemButton onClick={handleTextOpen}>
                         <ListItemIcon><TextFieldsIcon /></ListItemIcon>
                         <ListItemText primary="TEXT" />
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>
-                    <ListItemButton onClick={handleImage}>
+                    <ListItemButton onClick={handleImageOpen}>
                         <ListItemIcon><ImageIcon /></ListItemIcon>
                         <ListItemText primary="IMAGE" />
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>
-                    <ListItemButton onClick={handleVideo}>
+                    <ListItemButton onClick={handleVideoOpen}>
                         <ListItemIcon><VideoLibraryIcon /></ListItemIcon>
                         <ListItemText primary="VIDEO" />
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>
-                    <ListItemButton onClick={handleCode}>
+                    <ListItemButton onClick={handleCodeOpen}>
                         <ListItemIcon><CodeIcon /></ListItemIcon>
                         <ListItemText primary="CODE" />
                     </ListItemButton>
@@ -149,10 +194,9 @@ const SingleSlide = () => {
     );
 
     const handleDelete = () => {
-        getStore()
-        .then(data=>{
-            delete data.store[id]
-            console.log(data)
+        getStore().then(data => {
+            delete data.store[id];
+            console.log(data);
 
             const userToken = localStorage.getItem('token');
             const url = 'http://localhost:5005/store';
@@ -160,9 +204,9 @@ const SingleSlide = () => {
                 method: 'PUT',
                 headers: {
                     'Content-type': 'application/json',
-                    Authorization: `Bearer ${userToken}`
+                    Authorization: `Bearer ${userToken}`,
                 },
-                body: JSON.stringify({ store: data.store}),
+                body: JSON.stringify({ store: data.store }),
             })
             .then((res)=>{
                 return res.json()
@@ -171,25 +215,21 @@ const SingleSlide = () => {
         })
     };
 
-    const handleSlideDelete=()=>{
+    const handleSlideDelete = () => {
         getStore()
-        .then(data=>{
+        .then(data => {
             const presentation = data.store[id];
             const slideKeys = Object.keys(presentation).filter(key => key !== 'title');
-        
-            // if only one slide，error
+
             if (slideKeys.length === 1) {
                 setErrorOpen(true);
                 return;
             }
-            // find the delate key
-            const keyToDelete = slideKeys[currentIndex - 1]; // slideKeys begin with 0
+            const keyToDelete = slideKeys[currentIndex - 1];
             console.log(`Deleting slide at index ${currentIndex} with key ${keyToDelete}`);
             
             delete presentation[keyToDelete];
-            console.log(data);
 
-            // update currentIndex 
             const newSlideIndex = currentIndex > 1 ? currentIndex - 1 : 1;
             setCurrentIndex(newSlideIndex);
 
@@ -199,9 +239,9 @@ const SingleSlide = () => {
                 method: 'PUT',
                 headers: {
                     'Content-type': 'application/json',
-                    Authorization: `Bearer ${userToken}`
+                    Authorization: `Bearer ${userToken}`,
                 },
-                body: JSON.stringify({ store: data.store}),
+                body: JSON.stringify({ store: data.store }),
             })
             .then((res) => {
                 return res.json() 
@@ -211,7 +251,7 @@ const SingleSlide = () => {
     };
 
     const handleBack = () => {
-        navigate('/dashboard'); // back to dashboard
+        navigate('/dashboard');
     };
 
     const handleEditClick = () => {
@@ -224,11 +264,9 @@ const SingleSlide = () => {
 
     const handleTitleSave = () => {
         setIsEditing(false);
-        // Optionally: Save the updated title back to the server
-        getStore()
-        .then(data=>{
-            console.log(data)
-            data.store[id].title = editedTitle; 
+        getStore().then(data => {
+            console.log(data);
+            data.store[id].title = editedTitle;
             setPresentation(prev => ({ ...prev, title: editedTitle }));
 
             const userToken = localStorage.getItem('token');
@@ -237,49 +275,40 @@ const SingleSlide = () => {
                 method: 'PUT',
                 headers: {
                     'Content-type': 'application/json',
-                    Authorization: `Bearer ${userToken}`
+                    Authorization: `Bearer ${userToken}`,
                 },
-                body: JSON.stringify({ store: data.store}),
+                body: JSON.stringify({ store: data.store }),
             })
-            .then((res)=>{
-                return res.json()
-            })
-        })
+            .then(res => res.json());
+        });
+    };
+    //moving between
+    const goToPrevious = () => {
+        if (currentIndex > 1) setCurrentIndex(currentIndex - 1);
     };
 
-    //moving between
-    const goToPrevious=()=>{
-        //setCurrentIndex(prev=>(prev > 1 ? prev-1:prev))
-        if (currentIndex > 1) setCurrentIndex(currentIndex - 1);
-    }
-
-    const goToNext=()=>{
-        //setCurrentIndex(prev=>(prev < slideCount ? prev+1:prev))
+    const goToNext = () => {
         if (currentIndex < slideCount) setCurrentIndex(currentIndex + 1);
-    }
-    
+    };
     //Creating slides
     const handleAddPage = () => {
-        getStore()
-        .then(data => {
+        getStore().then(data => {
             const presentation = data.store[id];
-            // findthe maxnum of presentation，+ 1 to be newId
             const numericKeys = Object.keys(presentation)
-            .map(Number) 
-            .filter(key => !isNaN(key)); 
-
+                .map(Number)
+                .filter(key => !isNaN(key));
             const maxKey = numericKeys.length > 0 ? Math.max(...numericKeys) : 0;
             const newId = maxKey + 1;
             presentation[newId] = {};
 
-            console.log(data)
+            console.log(data);
             const userToken = localStorage.getItem('token');
             const url = 'http://localhost:5005/store';
             fetch(url, {
                 method: 'PUT',
                 headers: {
                     'Content-type': 'application/json',
-                    Authorization: `Bearer ${userToken}`
+                    Authorization: `Bearer ${userToken}`,
                 },
                 body: JSON.stringify({ store: data.store }),
             })
@@ -289,59 +318,54 @@ const SingleSlide = () => {
             getPresentation()
         });
     };
-
     //预览在这里
-    const handlePreview =()=>{
-        console.log("preview")
+    const handlePreview = () => {
+        console.log("preview");
     };
-
     //风格在这里
-    const handleStyle =()=>{
-        console.log("style")
+    const handleStyle = () => {
+        console.log("style");
     };
-
     // button style
     const buttonStyles = {
-        color: 'primary', 
-        bgcolor: 'white', 
-        borderColor: 'white', 
+        color: 'primary',
+        bgcolor: 'white',
+        borderColor: 'white',
         '&:hover': {
-            bgcolor: 'red', 
-            color: 'white', 
-            borderColor: 'red', 
+            bgcolor: 'red',
+            color: 'white',
+            borderColor: 'red',
         },
     };
 
     const slideBoxStyles = {
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        height: 'calc(100vh - 64px)', // Adjust height to fill remaining space after AppBar
-        position: 'relative'
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 'calc(100vh - 64px)',
+        position: 'relative',
     };
 
     const slideNumberStyles = {
-        position: 'absolute', 
-        bottom: 0, 
-        left: 0, 
-        width: '50px', 
-        height: '50px', 
-        fontSize: '1em', 
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '50px',
+        height: '50px',
+        fontSize: '1em',
         display: 'flex',
-        alignItems: 'center', 
-        justifyContent: 'center'
+        alignItems: 'center',
+        justifyContent: 'center',
     };
 
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
                 <Toolbar>
-                    {/* Drawer Toggle Button */}
                     <ReorderIcon onClick={handleDrawerToggle} sx={{ color: 'white', marginRight: 2 }}>
                         Tools
                     </ReorderIcon>
-                    {/* title with edit functionality */}
                     <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
                         {isEditing ? (
                             <TextField
@@ -365,11 +389,6 @@ const SingleSlide = () => {
                             sx={{ cursor: 'pointer', marginLeft: 1 }} 
                         />
                     </Box>
-
-
-                    {/* 缩略图写在这 */}
-                    
-                    {/* box for delete and back */}
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <Button 
                             variant="outlined"
@@ -393,7 +412,6 @@ const SingleSlide = () => {
                 {DrawerList}
             </Drawer>
 
-            {/* delete modal */}
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -411,14 +429,13 @@ const SingleSlide = () => {
                         >
                             Yes
                         </Button>
-                        <Button variant="contained" onClick={handleClose} >
+                        <Button variant="contained" onClick={handleClose}>
                             No
                         </Button>
                     </Box>
                 </Box>
             </Modal>
             
-            {/* delete error modal */}
             <Modal
                 open={errorOpen}
                 onClose={handleErrorClose}
@@ -435,74 +452,20 @@ const SingleSlide = () => {
                     <Button onClick={handleErrorClose}>OK</Button>
                 </Box>
             </Modal>
-            
 
-
-            {/* Centered black bordered box */}
-            <Box sx={slideBoxStyles}>
-                <Paper elevation={3}
-                    style={{ 
-                        width: '60%', 
-                        aspectRatio: '16 / 9', 
-                        position: 'relative',  
-                        marginRight: '10%', 
-                        marginLeft: 'auto' 
-                    }}
-                >
-                    {/* Up */}
-                    {currentIndex > 1 && (
-                        <KeyboardArrowUpIcon 
-                            onClick={goToPrevious}
-                            sx={{
-                                position: 'absolute', top: '50%', left: 0, transform: 'translateY(-50%)',
-                                cursor: 'pointer'
-                            }}
-                        />
-                    )}
-                    {/* Down */}
-                    {currentIndex < slideCount && (
-                        <KeyboardArrowDownIcon 
-                            onClick={goToNext}
-                            sx={{
-                                position: 'absolute', top: '50%', right: 0, transform: 'translateY(-50%)',
-                                cursor: 'pointer'
-                            }}
-                        />
-                    )}
-                    <Typography variant="caption" gutterBottom sx={slideNumberStyles}>
-                        {currentIndex}
-                    </Typography>
-                </Paper>
-                <Box 
-                    sx={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: 2, 
-                        marginTop: 2, 
-                        justifyContent: 'center' 
-                    }}
-                >
-                    <AddCircleIcon 
-                        onClick={handleAddPage}
-                        sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
-                    />
-                    <DeleteIcon 
-                        onClick={handleSlideDelete}
-                        sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
-                    />
-                    <StyleIcon 
-                        onClick={handleStyle}
-                        sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
-                    />
-                    <PreviewIcon 
-                        onClick={handlePreview}
-                        sx={{ color: grey[400], fontSize: 40, cursor: 'pointer' }}
-                    />
-
+            <Modal
+                open={textOpen}
+                onClose={handleTextClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={boxStyle}>
+                    <TextField id="textAreaSize" label="Area size" variant="outlined" onChange={(e) => setTextAreaSize(e.target.value)} value={textareasize} />  
+                    <TextField id="text" label="Text" variant="outlined" onChange={(e) => setText(e.target.value)} value={text} />
+                    <TextField id="fontSize" label="Font size" variant="outlined" onChange={(e) => setfontSize(e.target.value)} value={fontsize} />
+                    <TextField id="textColour" label="Colour" variant="outlined" onChange={(e) => settextColour(e.target.value)} value={textcolour} />
+                    <Button onClick={handleText}>Submit</Button>
                 </Box>
-            </Box>
-        </Box>
-    );
-};
+            </Modal>
 
-export default SingleSlide;
+
